@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+
+import { useState, useEffect } from 'react'
 
 interface AgentResult {
   analysis_result?: {
@@ -11,6 +12,7 @@ interface AgentResult {
   metadata?: {
     processing_time?: string
     version?: string
+    generation_time?: string
   }
   plan?: {
     agents: string[]
@@ -18,7 +20,6 @@ interface AgentResult {
     ui_blocks: string[]
     integrations: string[]
   }
-  generation_time?: string
 }
 
 interface UseCase {
@@ -118,7 +119,7 @@ function App() {
     }
   }
 
-  const extractFromText = (text: string, key: string, prefix: string): string[] => {
+  const extractFromText = (text: string, _key: string, prefix: string): string[] => {
     const lines = text.split('\n')
     const startIndex = lines.findIndex(line => line.toLowerCase().includes(prefix.toLowerCase()))
     if (startIndex === -1) return []
@@ -141,7 +142,7 @@ function App() {
       setResult({
         ...analysis,
         plan: plan.plan,
-        confidence: (analysis.confidence + plan.confidence) / 2
+        confidence: ((analysis.confidence || 0) + (plan.confidence || 0)) / 2
       })
     } catch (error) {
       console.error('Agent communication failed:', error)
@@ -154,16 +155,15 @@ function App() {
         },
         confidence: 0.78,
         metadata: {
-          processing_time: '4s',
-          version: '1.0'
+          processing_time: "4s",
+          version: "1.0"
         },
         plan: {
           agents: ['Idea Processing Agent', 'Plan Generation Agent', 'Result Formatter', 'Quality Checker'],
           workflows: ['Initial analysis', 'Structured planning', 'Component organization', 'Output validation'],
           ui_blocks: ['Input interface', 'Processing status', 'Result view', 'Step details'],
           integrations: ['Lyzr AI platform', 'API integration', 'Response parsing', 'Error handling']
-        },
-        generation_time: '5s'
+        }
       })
     } finally {
       setIsAnalyzing(false)
@@ -237,7 +237,7 @@ function App() {
                     <span className="text-sm text-gray-600">{Math.round((result.confidence || 0.8) * 100)}% Confidence</span>
                   </div>
                   <span className="text-sm text-gray-500">
-                    Processed in {result.generation_time || result.metadata?.processing_time || '4s'}
+                    Processed in { result.metadata?.generation_time || result.metadata?.processing_time || '4s'}
                   </span>
                 </div>
               </div>
@@ -317,7 +317,7 @@ function App() {
                                 {result.plan.ui_blocks.map((ui, idx) => (
                                   <span key={idx} className="px-2 py-1 bg-gray-200 text-gray-700 rounded text-xs">{ui}</span>
                                 ))}
-                              </divu003e
+                              </div>
                             </div>
                           )}
                           {result.plan.integrations && (
